@@ -31,3 +31,4 @@ DNS yayılması 5 dakika ile 24 saat arası.
 Şu an form `console.log` ile çalışıyor. Gerçekten mail göndermek için:
 - Formspree (formspree.io) hesabı aç
 - Aldığın endpoint URL'ini `index.html` içindeki `TODO` yorumunun olduğu yere koy
+- 

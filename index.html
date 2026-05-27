@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>m—re · Tasarım, kod, yapay zeka</title>
+<meta name="description" content="Sabit fiyata, sınırsız tasarım ve kod. Markalar ve girişimciler için." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Bagel Fat One = Le Cygne'ye en yakın bold, yumuşak köşeli display font alternatifi -->
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --orange: #FF5B1F;
+    --orange-soft: #FF7A47;
+    --orange-deep: #E04A10;
+    --black: #0A0A0B;
+    --black-2: #131316;
+    --white: #FFFFFF;
+    --cream: #F4F1EA;
+    --ink-dim: rgba(255,255,255,0.6);
+    --ink-faint: rgba(255,255,255,0.3);
+    --display: 'Bagel Fat One', 'Fraunces', Georgia, serif;
+    --body: 'Inter', -apple-system, system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { overflow-x: hidden; }
+  html { scroll-behavior: auto; }
+
+  body {
+    font-family: var(--body);
+    background: var(--orange);
+    color: var(--black);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ============ NAV (pill) ============ */
+  nav.pill {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--cream);
+    border-radius: 100px;
+    padding: 12px 12px 12px 28px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    z-index: 100;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    transition: background 0.4s;
+  }
+
+  nav.pill .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--black);
+  }
+  nav.pill .nav-logo-mark {
+    width: 28px;
+    height: 28px;
+  }
+  nav.pill .nav-logo-word {
+    font-family: var(--display);
+    font-size: 22px;
+    color: var(--black);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    padding-top: 2px;
+  }
+
+  nav.pill .nav-links {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  nav.pill .nav-links a {
+    text-decoration: none;
+    color: var(--black);
+    font-weight: 500;
+    font-size: 15px;
+    padding: 8px 14px;
+    border-radius: 100px;
+    transition: color 0.3s, background 0.3s;
+  }
+  nav.pill .nav-links a.active {
+    color: var(--orange);
+  }
+  nav.pill .nav-links a:hover {
+    color: var(--orange);
+  }
+
+  nav.pill .nav-cta {
+    background: var(--black);
+    color: var(--white);
+    text-decoration: none;
+    padding: 12px 22px;
+    border-radius: 100px;
+    font-weight: 500;
+    font-size: 15px;
+    transition: background 0.3s, transform 0.2s;
+  }
+  nav.pill .nav-cta:hover {
+    background: var(--orange);
+    transform: translateY(-1px);
+  }
+
+  /* ============ SCROLL CONTAINER ============ */
+  /* The body becomes a tall scrollable container.
+     The .stage stays fixed; .content slides through frames */
+  .scroll-host {
+    height: 500vh; /* 5 frames worth of scroll height */
+    position: relative;
+  }
+
+  .stage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    background: var(--orange);
+    transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .stage.dark { background: var(--black); }
+
+  /* corner dot indicators (like Umano) */
+  .corner-dot {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--black);
+    border-radius: 50%;
+    z-index: 50;
+  }
+  .corner-dot::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    background: var(--black);
+    border-radius: 50%;
+  }
+  .corner-dot.tl { top: 32px; left: 32px; }
+  .corner-dot.tr { top: 32px; right: 32px; }
+  .corner-dot.bl { bottom: 32px; left: 32px; }
+  .corner-dot.br { bottom: 32px; right: 32px; }
+  .stage.dark .corner-dot { border-color: var(--orange); }
+  .stage.dark .corner-dot::after { background: var(--orange); }
+
+  /* progress dots in left-mid */
+  .progress-dots {
+    position: absolute;
+    left: 32px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    z-index: 50;
+  }
+  .progress-dots .pd {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.2);
+    transition: background 0.4s, transform 0.4s;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+  }
+  .progress-dots .pd.active {
+    background: var(--black);
+    transform: scale(1.5);
+  }
+  .stage.dark .progress-dots .pd { background: rgba(255,255,255,0.2); }
+  .stage.dark .progress-dots .pd.active { background: var(--orange); }
+
+  /* ============ FRAMES ============ */
+  .frame {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 32px 64px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.5s;
+    pointer-events: none;
+  }
+  .frame.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0s;
+  }
+
+  /* Typography */
+  .display {
+    font-family: var(--display);
+    font-weight: 400;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+  }
+  .display.xl { font-size: clamp(56px, 9vw, 140px); }
+  .display.lg { font-size: clamp(48px, 7.5vw, 120px); }
+  .display.md { font-size: clamp(40px, 6vw, 88px); }
+
+  .sub {
+    font-family: var(--body);
+    font-weight: 400;
+    font-size: clamp(15px, 1.4vw, 19px);
+    color: var(--black);
+    max-width: 680px;
+    text-align: center;
+    margin-top: 24px;
+    line-height: 1.55;
+  }
+  .stage.dark .sub { color: var(--ink-dim); }
+  .stage.dark .sub strong { color: var(--white); font-weight: 600; }
+
+  .frame-light .display { color: var(--black); }
+  .frame-dark .display { color: var(--cream); }
+  .frame .display .accent { color: var(--orange); }
+  .frame-light .display .accent { color: var(--white); }
+
+  /* ============ FRAME 1: HERO ============ */
+  .hero-title {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .hero-tagline {
+    font-family: var(--body);
+    font-weight: 500;
+    font-size: clamp(17px, 1.6vw, 22px);
+    color: var(--black);
+    text-align: center;
+    margin-top: 16px;
+  }
+  .hero-tagline .blank {
+    display: inline-block;
+    width: 220px;
+    height: 1.2em;
+    vertical-align: middle;
+    border-bottom: 2px solid var(--black);
+    margin: 0 8px;
+    position: relative;
+  }
+  .hero-tagline .blank::after {
+    content: 'web sitesi';
+    position: absolute;
+    inset: 0;
+    text-align: center;
+    color: var(--orange-deep);
+    font-style: italic;
+    font-weight: 600;
+    animation: textCycle 9s steps(1) infinite;
+  }
+  @keyframes textCycle {
+    0%, 100% { content: 'web siteni'; }
+    33% { content: 'mobil uygulamanı'; }
+    66% { content: 'markanı'; }
+  }
+  /* Fallback since content animation isn't well-supported: use JS */
+
+  /* Phone mockup */
+  .phone {
+    position: absolute;
+    bottom: -180px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 320px;
+    height: 640px;
+    background: #1a1a1a;
+    border-radius: 56px;
+    padding: 14px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+    z-index: 5;
+  }
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 32px;
+    background: #0a0a0a;
+    border-radius: 100px;
+    z-index: 2;
+  }
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    background: var(--cream);
+    border-radius: 42px;
+    overflow: hidden;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone-status {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--black);
+    padding: 8px 16px;
+  }
+  .notif-card {
+    background: var(--white);
+    border-radius: 18px;
+    padding: 14px;
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .notif-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--orange);
+    border-radius: 9px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .notif-icon svg { width: 22px; height: 22px; }
+  .notif-text { flex: 1; }
+  .notif-text .src { font-size: 10px; color: var(--ink-faint); color: #888; }
+  .notif-text .msg { font-size: 13px; font-weight: 600; color: var(--black); margin-top: 2px; line-height: 1.3; }
+  .preview-card {
+    margin-top: 16px;
+    flex: 1;
+    background: linear-gradient(180deg, var(--orange-soft), var(--orange));
+    border-radius: 22px;
+  }
+
+  /* ============ FRAME 2: SERVICES (stories) ============ */
+  .floating-cards {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .float-card {
+    position: absolute;
+    background: linear-gradient(180deg, var(--orange-soft), var(--orange-deep));
+    border-radius: 22px;
+    padding: 20px;
+    width: 280px;
+    height: 380px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .float-card .card-preview {
+    flex: 1;
+    background: var(--cream);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--black);
+    padding: 16px;
+  }
+  .float-card .card-cta {
+    background: var(--orange);
+    color: var(--white);
+    text-decoration: none;
+    padding: 14px;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .float-card.c1 { top: 18%; left: 8%; transform: rotate(-8deg); }
+  .float-card.c2 { top: 28%; left: 40%; transform: rotate(4deg); background: linear-gradient(180deg, #2a2a2a, #1a1a1a); }
+  .float-card.c3 { top: 14%; right: 14%; transform: rotate(6deg); background: linear-gradient(180deg, #1a1a1a, #0a0a0a); border: 1px solid rgba(255,255,255,0.08); }
+
+  .float-card .preview-dark {
+    background: #2a2a2a;
+    color: var(--cream);
+  }
+  .float-card .preview-icon {
+    font-family: var(--display);
+    font-size: 48px;
+    color: var(--orange);
+  }
+  .float-card .preview-label {
+    font-size: 13px;
+    color: var(--ink-dim);
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  /* Stat badges floating */
+  .stat-badge {
+    position: absolute;
+    background: var(--white);
+    padding: 16px 22px;
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    color: var(--black);
+  }
+  .stat-badge .num {
+    font-family: var(--display);
+    font-size: 38px;
+    line-height: 1;
+    color: var(--black);
+  }
+  .stat-badge .lbl {
+    font-size: 10px;
+    font-weight: 600;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 4px;
+  }
+  .stat-badge.s1 { top: 22%; right: 4%; }
+  .stat-badge.s2 { top: 42%; right: 2%; }
+  .stat-badge.s3 { top: 62%; right: 5%; max-width: 200px; }
+  .stat-badge.s3 .dot {
+    width: 8px; height: 8px; background: var(--orange); border-radius: 50%; display: inline-block; margin-right: 8px;
+  }
+  .stat-badge.s3 .txt {
+    font-size: 13px; font-weight: 600; color: var(--black); line-height: 1.35;
+  }
+
+  /* ============ FRAME 3: PROCESS ============ */
+  .process-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    max-width: 1200px;
+    width: 100%;
+    margin-top: 56px;
+  }
+  .process-step {
+    background: var(--black-2);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 22px;
+    padding: 28px;
+    color: var(--cream);
+  }
+  .process-step .step-num {
+    font-family: var(--display);
+    font-size: 64px;
+    color: var(--orange);
+    line-height: 1;
+  }
+  .process-step h3 {
+    font-family: var(--display);
+    font-size: 28px;
+    color: var(--cream);
+    margin-top: 24px;
+    line-height: 1;
+  }
+  .process-step p {
+    font-size: 14px;
+    color: var(--ink-dim);
+    margin-top: 14px;
+    line-height: 1.55;
+  }
+
+  /* ============ FRAME 4: FAQ ============ */
+  .faq-wrap {
+    width: 100%;
+    max-width: 880px;
+    margin-top: 48px;
+  }
+  .faq-item {
+    background: var(--black-2);
+    border-radius: 18px;
+    margin-bottom: 12px;
+    padding: 22px 28px;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.04);
+    transition: border-color 0.3s;
+  }
+  .faq-item:hover { border-color: var(--orange); }
+  .faq-q {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--cream);
+    font-weight: 500;
+    font-size: 17px;
+  }
+  .faq-q .plus {
+    color: var(--orange);
+    font-size: 24px;
+    font-weight: 300;
+    transition: transform 0.3s;
+  }
+  .faq-item.open .plus { transform: rotate(45deg); }
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    color: var(--ink-dim);
+    font-size: 15px;
+    line-height: 1.55;
+    transition: max-height 0.4s, margin-top 0.3s;
+  }
+  .faq-item.open .faq-a {
+    max-height: 200px;
+    margin-top: 14px;
+  }
+
+  /* ============ FRAME 5: CONTACT ============ */
+  .contact-cta {
+    max-width: 720px;
+    width: 100%;
+    background: var(--orange);
+    border-radius: 28px;
+    padding: 56px 48px;
+    text-align: center;
+    margin-top: 40px;
+  }
+  .contact-cta h2 {
+    font-family: var(--display);
+    font-size: clamp(40px, 6vw, 72px);
+    line-height: 0.95;
+    color: var(--black);
+    letter-spacing: -0.02em;
+  }
+  .contact-cta p {
+    color: var(--black);
+    margin-top: 16px;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  .contact-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 32px;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    background: var(--black);
+    color: var(--white);
+    padding: 16px 28px;
+    border-radius: 100px;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+    transition: transform 0.2s, background 0.3s;
+    display: inline-flex; align-items: center; gap: 10px;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-primary:hover { transform: translateY(-2px); background: var(--cream); color: var(--black); }
+  .btn-secondary {
+    background: var(--white);
+    color: var(--black);
+    padding: 16px 28px;
+    border-radius: 100px;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+    transition: transform 0.2s;
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .btn-secondary:hover { transform: translateY(-2px); }
+
+  /* contact form modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .modal-backdrop.open { display: flex; opacity: 1; }
+  .modal {
+    background: var(--cream);
+    border-radius: 24px;
+    padding: 40px;
+    max-width: 560px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+  }
+  .modal h3 {
+    font-family: var(--display);
+    font-size: 36px;
+    color: var(--black);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .modal-sub { color: #666; font-size: 14px; margin-bottom: 28px; }
+  .modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: var(--black);
+    color: var(--white);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+  }
+  .modal label {
+    display: block;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--black);
+    margin-bottom: 6px;
+    margin-top: 16px;
+  }
+  .modal input, .modal textarea, .modal select {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1.5px solid #d8d4cb;
+    font-family: var(--body);
+    font-size: 15px;
+    background: var(--white);
+    color: var(--black);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .modal input:focus, .modal textarea:focus, .modal select:focus { border-color: var(--orange); }
+  .modal textarea { min-height: 100px; resize: vertical; }
+  .modal-submit {
+    width: 100%;
+    margin-top: 24px;
+    padding: 16px;
+    background: var(--orange);
+    color: var(--white);
+    border: none;
+    border-radius: 100px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .modal-submit:hover { background: var(--orange-deep); }
+  .modal-success { display: none; text-align: center; padding: 20px 0; }
+  .modal-success.show { display: block; }
+  .modal-success.show ~ form { display: none; }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 768px) {
+    nav.pill { padding: 8px 8px 8px 18px; gap: 12px; top: 16px; }
+    nav.pill .nav-logo-word { font-size: 18px; }
+    nav.pill .nav-logo-mark { width: 24px; height: 24px; }
+    nav.pill .nav-links { display: none; }
+    nav.pill .nav-cta { padding: 10px 16px; font-size: 13px; }
+
+    .corner-dot { width: 12px; height: 12px; }
+    .corner-dot.tl, .corner-dot.tr { top: 16px; }
+    .corner-dot.bl, .corner-dot.br { bottom: 16px; }
+    .corner-dot.tl, .corner-dot.bl { left: 16px; }
+    .corner-dot.tr, .corner-dot.br { right: 16px; }
+
+    .progress-dots { left: 16px; gap: 10px; }
+
+    .phone { width: 220px; height: 440px; bottom: -120px; border-radius: 40px; }
+    .phone-screen { border-radius: 30px; padding: 12px; }
+    .phone::before { width: 80px; height: 22px; top: 14px; }
+
+    .float-card { width: 200px; height: 280px; padding: 14px; }
+    .float-card.c1 { top: 30%; left: -5%; }
+    .float-card.c2 { top: 36%; left: 32%; }
+    .float-card.c3 { top: 14%; right: -5%; }
+
+    .stat-badge { padding: 10px 14px; }
+    .stat-badge .num { font-size: 24px; }
+    .stat-badge.s3 { display: none; }
+
+    .process-list { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .process-step { padding: 18px; }
+    .process-step .step-num { font-size: 44px; }
+    .process-step h3 { font-size: 22px; margin-top: 14px; }
+
+    .contact-cta { padding: 32px 24px; border-radius: 22px; }
+    .modal { padding: 24px; }
+  }
+
+  /* Hide scrollbar but keep scrolling */
+  body::-webkit-scrollbar { width: 0; }
+  body { scrollbar-width: none; }
+</style>
+</head>
+<body>
+
+<!-- Logo SVG symbol -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- Umano-style: yumuşak, dolu, organic blob şeklinde logo -->
+    <symbol id="logoMark" viewBox="0 0 40 40">
+      <!-- ana yaprak/damla şekli -->
+      <path d="M 20 4
+               C 28 4, 36 10, 36 20
+               C 36 30, 28 36, 20 36
+               C 16 36, 12 34, 10 31
+               L 14 27
+               C 16 28, 18 29, 20 29
+               C 25 29, 29 25, 29 20
+               C 29 14, 25 11, 20 11
+               C 18 11, 16 12, 14 13
+               L 10 9
+               C 12 6, 16 4, 20 4 Z"
+            fill="currentColor"/>
+      <!-- içindeki minik nokta -->
+      <circle cx="14" cy="20" r="2.5" fill="currentColor"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ============ NAV ============ -->
+<nav class="pill">
+  <a href="#" class="nav-logo">
+    <svg class="nav-logo-mark" style="color: var(--orange);"><use href="#logoMark"/></svg>
+    <span class="nav-logo-word">m—re</span>
+  </a>
+  <div class="nav-links">
+    <a href="#" data-frame="1" class="active">Stüdyo</a>
+    <a href="#" data-frame="3">Süreç</a>
+    <a href="#" data-frame="4">SSS</a>
+  </div>
+  <a href="#" class="nav-cta" id="bookCallBtn">Bana yaz</a>
+</nav>
+
+<!-- ============ SCROLL HOST ============ -->
+<div class="scroll-host">
+  <div class="stage" id="stage">
+
+    <!-- Corner dots (Umano-style) -->
+    <div class="corner-dot tl"></div>
+    <div class="corner-dot tr"></div>
+    <div class="corner-dot bl"></div>
+    <div class="corner-dot br"></div>
+
+    <!-- Progress dots -->
+    <div class="progress-dots" id="progressDots">
+      <button class="pd active" data-go="0" aria-label="Bölüm 1"></button>
+      <button class="pd" data-go="1" aria-label="Bölüm 2"></button>
+      <button class="pd" data-go="2" aria-label="Bölüm 3"></button>
+      <button class="pd" data-go="3" aria-label="Bölüm 4"></button>
+      <button class="pd" data-go="4" aria-label="Bölüm 5"></button>
+    </div>
+
+    <!-- ============ FRAME 1: HERO ============ -->
+    <div class="frame frame-light active" data-frame="0">
+      <div class="hero-title">
+        <div class="display xl">Daha az iş ilanı,</div>
+        <div class="display xl">çok daha fazla <span style="font-style: italic;">üretim</span>.</div>
+      </div>
+      <div class="hero-tagline">
+        <span id="rotatingWord" style="color: var(--orange-deep); font-style: italic;">web siteni</span>
+        sabit fiyata, sınırsız revizyonla tasarlıyor ve kodluyorum.
+      </div>
+
+      <!-- Phone mockup -->
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-status"><span>9:41</span><span>● ● ●</span></div>
+          <div class="notif-card">
+            <div class="notif-icon">
+              <svg viewBox="0 0 40 40" style="color: white;"><use href="#logoMark"/></svg>
+            </div>
+            <div class="notif-text">
+              <div class="src">İş bitti</div>
+              <div class="msg">Tasarımın hazır — incelemek için tıkla</div>
+            </div>
+          </div>
+          <div class="preview-card"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ FRAME 2: SERVICES ============ -->
+    <div class="frame frame-dark" data-frame="1">
+      <div class="display lg" style="text-align: center;">
+        Müşterilerimin<br>
+        <span class="accent" style="font-style: italic;">başarısı.</span>
+      </div>
+      <p class="sub">
+        15+ marka ve girişimcinin ürünlerini, sitelerini ve markalarını hayata geçirdim.
+        Her biri büyümeye ve yatırım almaya odaklı.
+      </p>
+
+      <div class="floating-cards">
+        <div class="float-card c1">
+          <div class="card-preview">
+            <div style="text-align: center;">
+              <div class="preview-icon">A</div>
+              <div class="preview-label">Marka Kimliği</div>
+            </div>
+          </div>
+          <a href="#" class="card-cta" onclick="event.preventDefault(); openModal();">
+            Konuşalım <span>→</span>
+          </a>
+        </div>
+
+        <div class="float-card c2">
+          <div class="card-preview preview-dark">
+            <div style="text-align: center;">
+              <div class="preview-icon" style="color: var(--cream);">W</div>
+              <div class="preview-label">Web & Mobil</div>
+            </div>
+          </div>
+          <a href="#" class="card-cta" onclick="event.preventDefault(); openModal();">
+            Konuşalım <span>→</span>
+          </a>
+        </div>
+
+        <div class="float-card c3">
+          <div class="card-preview preview-dark">
+            <div style="text-align: center;">
+              <div class="preview-icon">AI</div>
+              <div class="preview-label">Yapay Zeka Ürünü</div>
+            </div>
+          </div>
+          <a href="#" class="card-cta" onclick="event.preventDefault(); openModal();">
+            Konuşalım <span>→</span>
+          </a>
+        </div>
+
+        <div class="stat-badge s1">
+          <div class="num">15+</div>
+          <div class="lbl">Proje</div>
+        </div>
+        <div class="stat-badge s2">
+          <div class="num">24<span style="font-size: 20px;">sa</span></div>
+          <div class="lbl">Yanıt</div>
+        </div>
+        <div class="stat-badge s3">
+          <span class="dot"></span>
+          <span class="txt">Tasarım ve kodu tek elden — daha hızlı, daha tutarlı</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ FRAME 3: PROCESS ============ -->
+    <div class="frame frame-dark" data-frame="2">
+      <div class="display lg" style="text-align: center;">
+        Nasıl <span class="accent" style="font-style: italic;">çalışıyoruz?</span>
+      </div>
+      <p class="sub">
+        Karmaşık değil. 4 adımda fikrinden yayına.
+      </p>
+
+      <div class="process-list">
+        <div class="process-step">
+          <div class="step-num">01</div>
+          <h3>Tanışma</h3>
+          <p>30 dakikalık ücretsiz görüşme. Ne yapmak istediğini, hedefini ve bütçeni konuşuruz.</p>
+        </div>
+        <div class="process-step">
+          <div class="step-num">02</div>
+          <h3>Teklif</h3>
+          <p>Net bir yazılı teklif: ne yapılacak, ne kadar sürecek, ne kadara mal olacak.</p>
+        </div>
+        <div class="process-step">
+          <div class="step-num">03</div>
+          <h3>Yapım</h3>
+          <p>Haftalık güncellemelerle ilerliyoruz. Sen de süreçte aktif olarak yer alıyorsun.</p>
+        </div>
+        <div class="process-step">
+          <div class="step-num">04</div>
+          <h3>Teslim</h3>
+          <p>Proje yayında. Sonrası için bakım ve destek paketleri mevcut.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ FRAME 4: FAQ ============ -->
+    <div class="frame frame-dark" data-frame="3">
+      <div class="display lg" style="text-align: center;">
+        Sık sorulan<br>
+        <span class="accent" style="font-style: italic;">sorular.</span>
+      </div>
+
+      <div class="faq-wrap">
+        <div class="faq-item">
+          <div class="faq-q">
+            <span>Bir projenin başlangıç ücreti ne kadar?</span>
+            <span class="plus">+</span>
+          </div>
+          <div class="faq-a">
+            Bir landing page 1.000 USD'den, kapsamlı bir web platformu ya da AI ürünü 10.000+ USD'den başlıyor. Net rakamı ilk görüşmeden sonra söylüyorum.
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">
+            <span>Ne kadar sürede teslim ediyorsun?</span>
+            <span class="plus">+</span>
+          </div>
+          <div class="faq-a">
+            Küçük landing page projeleri 1–2 hafta, orta ölçek web siteleri 3–6 hafta, kapsamlı uygulamalar 2–4 ay sürüyor.
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">
+            <span>Sadece tasarım veya sadece kod yaptırabilir miyim?</span>
+            <span class="plus">+</span>
+          </div>
+          <div class="faq-a">
+            Tabii. İstersen sadece tasarım, istersen sadece kod. İkisini birlikte almak en verimli yol oluyor ama zorunlu değil.
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">
+            <span>Yurt dışından çalışır mıyız?</span>
+            <span class="plus">+</span>
+          </div>
+          <div class="faq-a">
+            Tabii. Toplantılar İngilizce de yapılabilir, ödemeler USD/EUR olarak alınabilir.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ FRAME 5: CONTACT ============ -->
+    <div class="frame frame-light" data-frame="4">
+      <div class="display lg" style="text-align: center; color: var(--black);">
+        Hadi bir şeyler<br>
+        <span style="font-style: italic; color: var(--white);">yapalım.</span>
+      </div>
+      <p class="sub" style="color: var(--black);">
+        Aşağıdaki formu doldur, 24 saat içinde dönüş yapayım.
+      </p>
+
+      <div class="contact-cta">
+        <h2>Projeni anlat.</h2>
+        <p>3 dakikanı al, gerisini birlikte konuşuruz.</p>
+        <div class="contact-actions">
+          <button class="btn-primary" onclick="openModal()">
+            Formu doldur <span>→</span>
+          </button>
+          <a href="mailto:hello@m-re.org" class="btn-secondary">
+            E-posta gönder
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ MODAL FORM ============ -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <h3>Projeni anlat</h3>
+    <div class="modal-sub">3 dakikanı al — sonra ben sana dönüyorum.</div>
+
+    <div class="modal-success" id="modalSuccess">
+      <div style="font-size: 56px; color: var(--orange);">◉</div>
+      <h3 style="margin-top: 12px;">Aldım.</h3>
+      <p style="color: #666; margin-top: 8px;">24 saat içinde sana dönüyorum.</p>
+    </div>
+
+    <form id="contactForm" novalidate>
+      <label>Adın *</label>
+      <input type="text" name="name" placeholder="Adın ve soyadın" required />
+
+      <label>E-posta *</label>
+      <input type="email" name="email" placeholder="ornek@mail.com" required />
+
+      <label>Ne tür bir proje?</label>
+      <select name="type">
+        <option>Marka Kimliği</option>
+        <option>Web Sitesi</option>
+        <option>Mobil Uygulama</option>
+        <option>Yapay Zeka Ürünü</option>
+        <option>Diğer</option>
+      </select>
+
+      <label>Bütçe aralığın</label>
+      <select name="budget">
+        <option value="">Seç (opsiyonel)</option>
+        <option>1.000 USD altı</option>
+        <option>1.000 – 5.000 USD</option>
+        <option>5.000 – 15.000 USD</option>
+        <option>15.000+ USD</option>
+        <option>Henüz emin değilim</option>
+      </select>
+
+      <label>Projeni kısaca anlat *</label>
+      <textarea name="message" placeholder="Ne yapmak istediğini birkaç cümleyle anlat. Detayları sonra konuşuruz." required></textarea>
+
+      <button type="submit" class="modal-submit">Gönder →</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  // ============ FRAME-BY-FRAME SCROLL ============
+  const stage = document.getElementById('stage');
+  const frames = document.querySelectorAll('.frame');
+  const progressDots = document.querySelectorAll('.progress-dots .pd');
+  const navLinks = document.querySelectorAll('nav.pill .nav-links a');
+  const totalFrames = frames.length;
+  const scrollHost = document.querySelector('.scroll-host');
+
+  let currentFrame = 0;
+
+  function updateFrame() {
+    const scrollY = window.scrollY;
+    const totalScroll = scrollHost.offsetHeight - window.innerHeight;
+    const progress = Math.min(Math.max(scrollY / totalScroll, 0), 1);
+    const frameIndex = Math.min(Math.floor(progress * totalFrames), totalFrames - 1);
+
+    if (frameIndex !== currentFrame) {
+      currentFrame = frameIndex;
+      // Update frames
+      frames.forEach((f, i) => {
+        f.classList.toggle('active', i === frameIndex);
+      });
+      // Update progress dots
+      progressDots.forEach((d, i) => {
+        d.classList.toggle('active', i === frameIndex);
+      });
+      // Update stage background (light frames 0 & 4, dark 1,2,3)
+      const activeFrame = frames[frameIndex];
+      const isDark = activeFrame.classList.contains('frame-dark');
+      stage.classList.toggle('dark', isDark);
+      // Update nav link active state
+      navLinks.forEach(a => {
+        const target = parseInt(a.dataset.frame || -1, 10);
+        a.classList.toggle('active', target === frameIndex + 1);
+      });
+    }
+  }
+
+  window.addEventListener('scroll', updateFrame, { passive: true });
+  window.addEventListener('resize', updateFrame, { passive: true });
+
+  // Progress dot click → scroll to that frame
+  progressDots.forEach((dot, i) => {
+    dot.addEventListener('click', () => {
+      const target = (scrollHost.offsetHeight - window.innerHeight) * (i / (totalFrames - 1));
+      window.scrollTo({ top: target + 10, behavior: 'smooth' });
+    });
+  });
+
+  // Nav link click → scroll to corresponding frame
+  navLinks.forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = parseInt(a.dataset.frame, 10);
+      if (!isNaN(target)) {
+        const frameIdx = target - 1;
+        const scrollTarget = (scrollHost.offsetHeight - window.innerHeight) * (frameIdx / (totalFrames - 1));
+        window.scrollTo({ top: scrollTarget + 10, behavior: 'smooth' });
+      }
+    });
+  });
+
+  // ============ ROTATING HERO WORD ============
+  const rotatingWord = document.getElementById('rotatingWord');
+  const words = ['web siteni', 'mobil uygulamanı', 'markanı', 'yapay zeka ürününü'];
+  let wordIdx = 0;
+  setInterval(() => {
+    wordIdx = (wordIdx + 1) % words.length;
+    rotatingWord.style.opacity = '0';
+    setTimeout(() => {
+      rotatingWord.textContent = words[wordIdx];
+      rotatingWord.style.opacity = '1';
+    }, 250);
+  }, 2500);
+  rotatingWord.style.transition = 'opacity 0.25s';
+
+  // ============ FAQ TOGGLE ============
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.faq-item').forEach(o => {
+        if (o !== item) o.classList.remove('open');
+      });
+      item.classList.toggle('open');
+    });
+  });
+
+  // ============ MODAL ============
+  const modal = document.getElementById('modal');
+  const modalSuccess = document.getElementById('modalSuccess');
+  const bookCallBtn = document.getElementById('bookCallBtn');
+  const contactForm = document.getElementById('contactForm');
+
+  function openModal() {
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    modalSuccess.classList.remove('show');
+    contactForm.style.display = 'block';
+    contactForm.reset();
+  }
+  function closeModal() {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  window.openModal = openModal;
+  window.closeModal = closeModal;
+
+  bookCallBtn.addEventListener('click', (e) => { e.preventDefault(); openModal(); });
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+  contactForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const fd = new FormData(contactForm);
+    const data = Object.fromEntries(fd.entries());
+    if (!data.name || !data.email || !data.message) {
+      alert('Lütfen zorunlu alanları doldur (isim, e-posta, mesaj).');
+      return;
+    }
+    console.log('Form:', data);
+    // TODO: Bağlanacak endpoint (Formspree, vs.)
+    contactForm.style.display = 'none';
+    modalSuccess.classList.add('show');
+  });
+
+  // initial call
+  updateFrame();
+</script>
+
+</body>
+</html>

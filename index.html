@@ -271,10 +271,10 @@
   }
   /* Fallback since content animation isn't well-supported: use JS */
 
-  /* Phone mockup — stage'de sabit, JS ile göster/gizle */
+  /* Phone mockup — stage içinde, hero frame'iyle birlikte gösterilir */
   .phone {
     position: absolute;
-    bottom: -160px;
+    bottom: -150px;
     left: 50%;
     transform: translateX(-50%);
     width: 300px;
@@ -283,16 +283,16 @@
     border-radius: 52px;
     padding: 14px;
     box-shadow: 0 30px 80px rgba(0,0,0,0.35);
-    z-index: 10;
+    z-index: 6;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.4s ease, visibility 0s linear 0.4s;
+    transition: opacity 0.45s ease, visibility 0s linear 0.45s;
     pointer-events: none;
   }
   .phone.visible {
     opacity: 1;
     visibility: visible;
-    transition: opacity 0.4s ease, visibility 0s linear 0s;
+    transition: opacity 0.45s ease, visibility 0s linear 0s;
   }
   .phone::before {
     content: '';
@@ -1033,7 +1033,7 @@
   const totalFrames = frames.length;
   const scrollHost = document.querySelector('.scroll-host');
 
-  let currentFrame = 0;
+  let currentFrame = -1; // -1 ile başla, ilk çalışmada mutlaka güncellensin
   const phoneMockup = document.getElementById('phoneMockup');
 
   function updateFrame() {
@@ -1061,7 +1061,7 @@
         const target = parseInt(a.dataset.frame || -1, 10);
         a.classList.toggle('active', target === frameIndex + 1);
       });
-      // Telefon: sadece frame 0 (hero)'da görünür
+      // Telefon: SADECE frame 0'da görünür, diğerlerinde tamamen gizli
       phoneMockup.classList.toggle('visible', frameIndex === 0);
     }
   }
@@ -1152,9 +1152,8 @@
     modalSuccess.classList.add('show');
   });
 
-  // initial call — telefonu başlangıçta göster
+  // initial call
   updateFrame();
-  phoneMockup.classList.add('visible');
 </script>
 
 </body>

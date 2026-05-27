@@ -271,19 +271,28 @@
   }
   /* Fallback since content animation isn't well-supported: use JS */
 
-  /* Phone mockup */
+  /* Phone mockup — stage'de sabit, JS ile göster/gizle */
   .phone {
     position: absolute;
-    bottom: -180px;
+    bottom: -160px;
     left: 50%;
     transform: translateX(-50%);
-    width: 320px;
-    height: 640px;
+    width: 300px;
+    height: 600px;
     background: #1a1a1a;
-    border-radius: 56px;
+    border-radius: 52px;
     padding: 14px;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.3);
-    z-index: 5;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.35);
+    z-index: 10;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0s linear 0.4s;
+    pointer-events: none;
+  }
+  .phone.visible {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.4s ease, visibility 0s linear 0s;
   }
   .phone::before {
     content: '';
@@ -769,6 +778,23 @@
       <button class="pd" data-go="4" aria-label="Bölüm 5"></button>
     </div>
 
+    <!-- Phone: frame DIŞINDA, stage seviyesinde, JS ile kontrol ediliyor -->
+    <div class="phone" id="phoneMockup">
+      <div class="phone-screen">
+        <div class="phone-status"><span>9:41</span><span>● ● ●</span></div>
+        <div class="notif-card">
+          <div class="notif-icon">
+            <svg viewBox="0 0 40 40" style="color: white;"><use href="#logoMark"/></svg>
+          </div>
+          <div class="notif-text">
+            <div class="src">İş bitti</div>
+            <div class="msg">Tasarımın hazır — incelemek için tıkla</div>
+          </div>
+        </div>
+        <div class="preview-card"></div>
+      </div>
+    </div>
+
     <!-- ============ FRAME 1: HERO ============ -->
     <div class="frame frame-light active" data-frame="0">
       <div class="hero-title">
@@ -778,23 +804,6 @@
       <div class="hero-tagline">
         <span id="rotatingWord" style="color: var(--orange-deep); font-style: italic;">web siteni</span>
         sabit fiyata, sınırsız revizyonla tasarlıyor ve kodluyorum.
-      </div>
-
-      <!-- Phone mockup -->
-      <div class="phone">
-        <div class="phone-screen">
-          <div class="phone-status"><span>9:41</span><span>● ● ●</span></div>
-          <div class="notif-card">
-            <div class="notif-icon">
-              <svg viewBox="0 0 40 40" style="color: white;"><use href="#logoMark"/></svg>
-            </div>
-            <div class="notif-text">
-              <div class="src">İş bitti</div>
-              <div class="msg">Tasarımın hazır — incelemek için tıkla</div>
-            </div>
-          </div>
-          <div class="preview-card"></div>
-        </div>
       </div>
     </div>
 
@@ -1025,6 +1034,7 @@
   const scrollHost = document.querySelector('.scroll-host');
 
   let currentFrame = 0;
+  const phoneMockup = document.getElementById('phoneMockup');
 
   function updateFrame() {
     const scrollY = window.scrollY;
@@ -1051,6 +1061,8 @@
         const target = parseInt(a.dataset.frame || -1, 10);
         a.classList.toggle('active', target === frameIndex + 1);
       });
+      // Telefon: sadece frame 0 (hero)'da görünür
+      phoneMockup.classList.toggle('visible', frameIndex === 0);
     }
   }
 
@@ -1140,8 +1152,9 @@
     modalSuccess.classList.add('show');
   });
 
-  // initial call
+  // initial call — telefonu başlangıçta göster
   updateFrame();
+  phoneMockup.classList.add('visible');
 </script>
 
 </body>
